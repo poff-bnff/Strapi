@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_article_trio_shorts",
+  "info": {
+    "name": "TrioShorts",
+    "icon": "church"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "lead": {
+      "type": "string"
+    },
+    "trioItem_1": {
+      "type": "component",
+      "repeatable": false,
+      "component": "article.trio-item-shorts"
+    },
+    "trioItem_2": {
+      "type": "component",
+      "repeatable": false,
+      "component": "article.trio-item-shorts"
+    },
+    "trioItem_3": {
+      "type": "component",
+      "repeatable": false,
+      "component": "article.trio-item-shorts"
+    }
+  }
+}
