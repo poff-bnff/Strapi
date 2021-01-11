@@ -114,5 +114,9 @@ exports
 build
 config/databases.js
 config/server.js
+
 extensions
+admin
+.vscode
+a.tmp
 
