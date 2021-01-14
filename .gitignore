@@ -115,8 +115,9 @@ build
 config/database.js
 config/server.js
 
-extensions
+# extensions
 admin
 .vscode
 a.tmp
+jwt.js
 
