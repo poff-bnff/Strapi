@@ -29,7 +29,7 @@
       "path": "/votes",
       "handler": "vote.create",
       "config": {
-        "policies": []
+        "policies": ["global::check-vote"]
       }
     },
     {
