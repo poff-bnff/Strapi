@@ -89,5 +89,34 @@ module.exports = async (ctx, next) => {
     return ctx.badRequest('Unable to validate vote');
   }
 
+  // 6. Optional Bearer token validation. If a token is sent and valid,
+  //    inject the verified user's id + username into the body so the
+  //    lifecycle hook can dedup by user_id instead of fingerprint.
+  //    A missing or invalid token is fine — the vote still goes through anonymously.
+  //    We never trust user_id/username from the request body — strip them if sent.
+  delete ctx.request.body.user_id;
+  delete ctx.request.body.username;
+
+  const authHeader = ctx.request.header.authorization || '';
+  const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (tokenMatch) {
+    const token = tokenMatch[1];
+    try {
+      const jwtService = strapi.plugins['users-permissions'].services.jwt;
+      const userService = strapi.plugins['users-permissions'].services.user;
+      const decoded = await jwtService.verify(token);
+      if (decoded && decoded.id) {
+        const user = await userService.fetchAuthenticatedUser(decoded.id);
+        if (user && user.id) {
+          ctx.request.body.user_id = String(user.id);
+          ctx.request.body.username = user.username || '';
+        }
+      }
+    } catch (e) {
+      // Invalid/expired token — log but allow the request to continue as anonymous.
+      strapi.log.info('check-vote: token validation failed, treating as anonymous');
+    }
+  }
+
   await next();
 };
