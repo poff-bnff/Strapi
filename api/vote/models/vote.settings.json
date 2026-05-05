@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "votes",
+  "info": {
+    "name": "Vote",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "datetime": {
+      "type": "datetime"
+    },
+    "from": {
+      "type": "string"
+    },
+    "voteoption_name": {
+      "type": "string"
+    },
+    "film_id": {
+      "type": "string"
+    },
+    "voteoption_id": {
+      "type": "string"
+    },
+    "fingerprint_hash": {
+      "type": "string"
+    },
+    "user_agent": {
+      "type": "text"
+    },
+    "screen_resolution": {
+      "type": "string"
+    },
+    "timezone": {
+      "type": "string"
+    }
+  }
+}
