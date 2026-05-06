@@ -54,7 +54,10 @@ module.exports = async (ctx, next) => {
   }
 
   // 3. Rate limit per (IP, from) pair
-  const ip = ctx.request.ip;
+  // Read X-Forwarded-For directly since Strapi proxy trust isn't configured
+  // (otherwise ctx.request.ip would return nginx's loopback for all requests).
+  const xffEarly = ctx.request.header['x-forwarded-for'] || '';
+  const ip = xffEarly.split(',')[0].trim() || ctx.request.ip;
   const now = Date.now();
   const buckets = rateLimitStore.get(ip) || { film: [], kiosk: [] };
   const recent = (buckets[from] || []).filter(t => now - t < RATE_LIMIT_WINDOW_MS);
@@ -96,6 +99,15 @@ module.exports = async (ctx, next) => {
   //    We never trust user_id/username from the request body — strip them if sent.
   delete ctx.request.body.user_id;
   delete ctx.request.body.username;
+
+  // Capture client IP server-side (cannot be spoofed by clients). nginx forwards
+  // the original client IP via X-Forwarded-For; Strapi proxy trust isn't configured
+  // so ctx.request.ip would return nginx's loopback. Read XFF directly with ip
+  // as fallback. Always strip any client-supplied value first.
+  delete ctx.request.body.ip_address;
+  const xff = ctx.request.header['x-forwarded-for'] || '';
+  const clientIp = xff.split(',')[0].trim() || ctx.request.ip || '';
+  ctx.request.body.ip_address = clientIp;
 
   const authHeader = ctx.request.header.authorization || '';
   const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
