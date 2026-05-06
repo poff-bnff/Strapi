@@ -7,6 +7,16 @@
 
 module.exports = {
   lifecycles: {
+    // The custom extensions/content-manager/services/entity-manager.js stuffs
+    // the admin user object into params.user on delete/findAndDelete. Strapi
+    // then tries to use it as a SQL filter, which fails with "field 'user'
+    // doesn't appear on your model definition" because Vote has no user field.
+    // Strip it here before the query runs (matches the pattern used by other
+    // models in this codebase, e.g. api/cassette/models/cassette.js).
+    async beforeDelete(params) {
+      if (params && params.user) delete params.user;
+    },
+
     async beforeCreate(data) {
       // Only enforce dedup for votes coming from the public film page.
       // Kiosk votes (from === 'kiosk') are intentionally allowed unlimited per fingerprint.
